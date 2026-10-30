@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% block title %}Add Book{% endblock %}
+{% block content %}
+<h1>Add Book</h1>
+{% if authors %}
+<form action="{{ url_for('add_book') }}" method="post">
+  <label for="title">Title *</label>
+  <input id="title" name="title" value="{{ request.form.get('title', '') }}" required>
+  <label for="isbn">ISBN (10 or 13 characters)</label>
+  <input id="isbn" name="isbn" value="{{ request.form.get('isbn', '') }}">
+  <label for="publication_year">Publication year</label>
+  <input type="number" min="1" max="9999" id="publication_year" name="publication_year" value="{{ request.form.get('publication_year', '') }}">
+  <label for="author_id">Author *</label>
+  <select id="author_id" name="author_id" required>
+    <option value="">Please select</option>
+    {% for author in authors %}
+    {% if request.form.get('author_id') == author.id|string %}
+    <option value="{{ author.id }}" selected>{{ author.name }}</option>
+    {% else %}
+    <option value="{{ author.id }}">{{ author.name }}</option>
+    {% endif %}
+    {% endfor %}
+  </select>
+  <button type="submit">Save Book</button>
+</form>
+{% else %}
+<p>Please <a href="{{ url_for('add_author') }}">add an author</a> before adding a book.</p>
+{% endif %}
+{% endblock %}

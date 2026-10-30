@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% block title %}Add Author{% endblock %}
+{% block content %}
+<h1>Add Author</h1>
+<form action="{{ url_for('add_author') }}" method="post">
+  <label for="name">Name *</label>
+  <input id="name" name="name" value="{{ request.form.get('name', '') }}" required>
+  <label for="birthdate">Date of birth</label>
+  <input type="date" id="birthdate" name="birthdate" value="{{ request.form.get('birthdate', '') }}">
+  <label for="date_of_death">Date of death (if known)</label>
+  <input type="date" id="date_of_death" name="date_of_death" value="{{ request.form.get('date_of_death', '') }}">
+  <button type="submit">Save Author</button>
+</form>
+{% endblock %}

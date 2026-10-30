@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+{% block content %}
+<h1>My Library</h1>
+<form action="{{ url_for('home') }}" method="get">
+  <label for="sort">Sort by</label>
+  <select id="sort" name="sort">
+    {% if sort == 'title' %}
+    <option value="title" selected>Title (A–Z)</option>
+    <option value="author">Author name (A–Z)</option>
+    {% else %}
+    <option value="title">Title (A–Z)</option>
+    <option value="author" selected>Author name (A–Z)</option>
+    {% endif %}
+  </select>
+  <button type="submit">Apply sorting</button>
+</form>
+<div class="books">
+{% for book in books %}
+  <article>
+    <div class="cover">
+      {% if book.isbn %}
+      <img src="https://covers.openlibrary.org/b/isbn/{{ book.isbn|urlencode }}-M.jpg?default=false" alt="Cover of {{ book.title }}" loading="lazy" onerror="this.hidden=true; this.nextElementSibling.hidden=false;">
+      <span hidden>Cover unavailable</span>
+      {% else %}<span>No ISBN – cover unavailable</span>{% endif %}
+    </div>
+    <h2>{{ book.title }}</h2>
+    <p>{{ book.author.name }}</p>
+    {% if book.publication_year %}<p>Published: {{ book.publication_year }}</p>{% endif %}
+    {% if book.isbn %}<p>ISBN: {{ book.isbn }}</p>{% endif %}
+  </article>
+{% else %}
+  <p>No books yet. <a href="{{ url_for('add_book') }}">Add your first book.</a></p>
+{% endfor %}
+</div>
+<p>Cover: <a href="https://openlibrary.org">Open Library</a></p>
+{% endblock %}
