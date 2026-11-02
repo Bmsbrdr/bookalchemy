@@ -16,16 +16,19 @@ db.init_app(app)
 
 @app.route('/')
 def home():
-    """Render the library with books sorted by title or author name."""
+    """Filter books by title and render them sorted by title or author."""
+    search = request.args.get('search', '').strip()
     sort = request.args.get('sort', 'title')
     if sort not in ('title', 'author'):
         sort = 'title'
     order = db.func.lower(Author.name) if sort == 'author' else db.func.lower(Book.title)
+    query = db.select(Book).join(Author).options(db.joinedload(Book.author))
+    if search:
+        query = query.where(Book.title.icontains(search, autoescape=True))
     books = db.session.execute(
-        db.select(Book).join(Author).options(db.joinedload(Book.author))
-        .order_by(order, db.func.lower(Book.title), Book.id)
+        query.order_by(order, db.func.lower(Book.title), Book.id)
     ).scalars().all()
-    return render_template('home.html', books=books, sort=sort)
+    return render_template('home.html', books=books, sort=sort, search=search)
 
 
 @app.route('/add_author', methods=['GET', 'POST'])

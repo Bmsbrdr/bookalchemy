@@ -2,6 +2,12 @@
 {% block content %}
 <h1>My Library</h1>
 <form action="{{ url_for('home') }}" method="get">
+  <label for="search">Search by title</label>
+  <input type="search" id="search" name="search" value="{{ search }}" placeholder="Enter a word or phrase">
+  <button type="submit">Search</button>
+  {% if search %}
+  <a href="{{ url_for('home', sort=sort) }}">Clear search</a>
+  {% endif %}
   <label for="sort">Sort by</label>
   <select id="sort" name="sort">
     {% if sort == 'title' %}
@@ -29,7 +35,11 @@
     {% if book.isbn %}<p>ISBN: {{ book.isbn }}</p>{% endif %}
   </article>
 {% else %}
+  {% if search %}
+  <p>No books match your search for “{{ search }}”.</p>
+  {% else %}
   <p>No books yet. <a href="{{ url_for('add_book') }}">Add your first book.</a></p>
+  {% endif %}
 {% endfor %}
 </div>
 <p>Cover: <a href="https://openlibrary.org">Open Library</a></p>

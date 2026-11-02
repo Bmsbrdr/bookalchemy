@@ -35,6 +35,34 @@ class LibraryRoutesTest(unittest.TestCase):
         self.assertEqual(self.client.post('/add_book', data={'title': 'Book', 'author_id': '999'}).status_code, 400)
         self.assertEqual(db.session.query(Book).count(), 0)
 
+    def test_title_search(self):
+        """Verify phrase matching, sorting, empty queries, and literal wildcards."""
+        alpha = Author(name='Alpha')
+        zulu = Author(name='Zulu')
+        db.session.add_all([
+            Book(title='The River Road', author=alpha),
+            Book(title='A River Story', author=zulu),
+            Book(title='100% Python_Examples', author=alpha),
+        ])
+        db.session.commit()
+        page = self.client.get('/', query_string={'search': ' RIVER ', 'sort': 'author'}).text
+        self.assertIn('<h2>The River Road</h2>', page)
+        self.assertIn('<h2>A River Story</h2>', page)
+        self.assertNotIn('<h2>100% Python_Examples</h2>', page)
+        self.assertLess(page.index('<h2>The River'), page.index('<h2>A River'))
+        self.assertIn('value="RIVER"', page)
+        phrase = self.client.get('/', query_string={'search': 'river road'}).text
+        self.assertIn('<h2>The River Road</h2>', phrase)
+        self.assertNotIn('<h2>A River Story</h2>', phrase)
+        missing = self.client.get('/', query_string={'search': 'missing'}).text
+        self.assertIn('No books match your search', missing)
+        self.assertNotIn('No books yet', missing)
+        for search in ('%', '_'):
+            page = self.client.get('/', query_string={'search': search}).text
+            self.assertIn('<h2>100% Python_Examples</h2>', page)
+            self.assertNotIn('<h2>The River Road</h2>', page)
+        self.assertEqual(self.client.get('/?search=+++').text.count('<article>'), 3)
+
     def test_author_validation_and_success(self):
         """Reject invalid author data and confirm a valid author is saved."""
         for data in ({'name': ' '}, {'name': 'Test', 'birthdate': 'bad'}, {'name': 'Test', 'birthdate': '2000-01-01', 'date_of_death': '1999-01-01'}):
