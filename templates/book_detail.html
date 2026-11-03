@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+{% block title %}{{ book.title }}{% endblock %}
+{% block content %}
+<p class="breadcrumb"><a href="{{ url_for('home') }}">My Library</a> / Book details</p>
+<section class="page-heading"><div><p class="eyebrow">A CLOSER LOOK AT YOUR SHELF</p><h1>{{ book.title }}</h1><p class="intro">By <a href="{{ url_for('author_detail', author_id=book.author_id) }}">{{ book.author.name }}</a></p></div></section>
+<div class="detail-layout">
+  <div class="cover detail-cover">
+    <div class="cover-fallback"><span class="eyebrow">THE PERSONAL COLLECTION</span><strong>{{ book.title }}</strong><span class="fallback-rule"></span><span>{{ book.author.name }}</span><small>Cover unavailable</small></div>
+    {% if book.isbn %}<img src="https://covers.openlibrary.org/b/isbn/{{ book.isbn|urlencode }}-L.jpg?default=false" alt="Cover of {{ book.title }}" data-book-cover>{% endif %}
+  </div>
+  <section class="detail-panel" aria-label="Book information">
+    <h2>About this book</h2>
+    <dl class="detail-facts">
+      <dt>Author</dt><dd><a href="{{ url_for('author_detail', author_id=book.author_id) }}">{{ book.author.name }}</a></dd>
+      <dt>Publication year</dt><dd>{{ book.publication_year if book.publication_year else 'Unknown' }}</dd>
+      <dt>ISBN</dt><dd>{{ book.isbn or 'Not provided' }}</dd>
+      <dt>Your rating</dt><dd>{{ (book.rating|string ~ ' / 10') if book.rating else 'Not rated yet' }}</dd>
+    </dl>
+    <form class="rating-form" action="{{ url_for('rate_book', book_id=book.id) }}" method="post">
+      <label for="rating">Your rating (1–10)</label>
+      <select id="rating" name="rating">
+        <option value="">Not rated</option>
+        {% for score in range(1, 11) %}
+        {% if book.rating == score %}
+        <option value="{{ score }}" selected>{{ score }} / 10</option>
+        {% else %}
+        <option value="{{ score }}">{{ score }} / 10</option>
+        {% endif %}
+        {% endfor %}
+      </select>
+      <button type="submit">Save Rating</button>
+    </form>
+    <div class="form-actions"><a class="button" href="{{ url_for('author_detail', author_id=book.author_id) }}">View Author</a><a href="{{ url_for('home') }}">Back to library</a></div>
+  </section>
+</div>
+{% endblock %}

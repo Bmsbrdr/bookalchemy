@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% block title %}{{ author.name }}{% endblock %}
+{% block content %}
+<p class="breadcrumb"><a href="{{ url_for('home') }}">My Library</a> / Author details</p>
+<section class="page-heading"><div><p class="eyebrow">THE PERSON BEHIND THE PAGES</p><h1>{{ author.name }}</h1><p class="intro">A storyteller in your collection.</p></div></section>
+<section class="detail-panel" aria-label="Author information">
+  <h2>About this author</h2>
+  <dl class="detail-facts">
+    <dt>Date of birth</dt><dd>{{ author.birth_date.strftime('%B %d, %Y') if author.birth_date else 'Unknown' }}</dd>
+    <dt>Date of death</dt><dd>{{ author.date_of_death.strftime('%B %d, %Y') if author.date_of_death else 'Not recorded' }}</dd>
+    <dt>Books in your library</dt><dd>{{ books|length }}</dd>
+  </dl>
+  <form class="delete-form" action="{{ url_for('delete_author', author_id=author.id) }}" method="post" data-delete-author>
+    <p>This will also delete all books by this author from your library.</p>
+    <button type="submit" class="delete-button">Delete Author</button>
+  </form>
+</section>
+<div class="collection-heading"><h2>Books by {{ author.name }} <span class="count">{{ books|length }}</span></h2></div>
+<ul class="author-books">
+{% for book in books %}
+  <li><a href="{{ url_for('book_detail', book_id=book.id) }}">{{ book.title }}</a><span>{{ book.publication_year if book.publication_year else 'Year unknown' }}</span></li>
+{% else %}
+  <li>No books by this author in your library yet.</li>
+{% endfor %}
+</ul>
+<p><a href="{{ url_for('home') }}">Back to library</a></p>
+{% endblock %}

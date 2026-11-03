@@ -17,6 +17,7 @@
       <a href="{{ url_for('home') }}" aria-current="{{ 'page' if request.endpoint == 'home' else 'false' }}"><span aria-hidden="true">▤</span> My Library</a>
       <a href="{{ url_for('add_book') }}" aria-current="{{ 'page' if request.endpoint == 'add_book' else 'false' }}"><span aria-hidden="true">＋</span> Add Book</a>
       <a href="{{ url_for('add_author') }}" aria-current="{{ 'page' if request.endpoint == 'add_author' else 'false' }}"><span aria-hidden="true">✎</span> Add Author</a>
+      <a href="{{ url_for('recommendations') }}" aria-current="{{ 'page' if request.endpoint == 'recommendations' else 'false' }}"><span aria-hidden="true">✦</span> Recommendations</a>
     </nav>
     <div class="sidebar-note"><span aria-hidden="true">❧</span><p>One more chapter.<br>One more possibility.</p><small>Make room for a good story.</small></div>
     <div class="sidebar-footer">YOUR PERSONAL LIBRARY<br><span>Collected with curiosity.</span></div>

@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% block title %}Recommendations{% endblock %}
+{% block content %}
+<section class="page-heading"><div><p class="eyebrow">FIND YOUR NEXT CHAPTER</p><h1>Made for your shelf.</h1><p class="intro">A new story, inspired by the books you already love.</p></div></section>
+<div class="form-layout">
+  <section class="detail-panel">
+    <h2>Your next read</h2>
+    <p>We use all {{ books|length }} books in your library as your reading history. Ratings help us understand what you enjoyed.</p>
+    <p>When you generate a recommendation, book titles, author names, and ratings are sent to OpenRouter and its selected model provider.</p>
+    {% if books %}
+    <form action="{{ url_for('recommendations') }}" method="post" data-recommendation-form><button type="submit">Generate Recommendation</button><p class="request-status" role="status" hidden>Finding your next read… This can take up to 45 seconds.</p></form>
+    {% else %}<p>Add some books to your library first.</p><a class="button" href="{{ url_for('add_book') }}">Add Book</a>{% endif %}
+    {% if recommendation %}<section aria-label="Your recommendation" class="recommendation-result"><h2>A story to discover</h2><p>{{ recommendation|recommendation_text }}</p><small>AI suggestions can be inaccurate. Check the title and author before buying.</small></section>{% endif %}
+  </section>
+  <aside class="form-note"><p class="eyebrow">A LITTLE MORE YOU</p><h2>Let your favorites<br>lead the way.</h2><p>Open a book's detail page to rate it from 1 to 10. Unrated books are included too.</p><p>Recommendations use a free OpenRouter model. Availability and usage limits can vary.</p></aside>
+</div>
+{% endblock %}
