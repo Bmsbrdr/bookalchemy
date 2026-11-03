@@ -2,7 +2,7 @@
 
 import unittest
 from flask import Flask
-from app import home, add_author, add_book
+from app import home, add_author, add_book, delete_book
 from data_models import db, Author, Book
 
 
@@ -17,6 +17,7 @@ class LibraryRoutesTest(unittest.TestCase):
         self.app.add_url_rule('/', 'home', home)
         self.app.add_url_rule('/add_author', 'add_author', add_author, methods=['GET', 'POST'])
         self.app.add_url_rule('/add_book', 'add_book', add_book, methods=['GET', 'POST'])
+        self.app.add_url_rule('/book/<int:book_id>/delete', 'delete_book', delete_book, methods=['POST'])
         self.context = self.app.app_context()
         self.context.push()
         db.create_all()
@@ -34,6 +35,31 @@ class LibraryRoutesTest(unittest.TestCase):
         self.assertIn('Please', self.client.get('/add_book').text)
         self.assertEqual(self.client.post('/add_book', data={'title': 'Book', 'author_id': '999'}).status_code, 400)
         self.assertEqual(db.session.query(Book).count(), 0)
+
+    def test_delete_book(self):
+        """Delete only the selected book, redirect, and retain its author."""
+        author = Author(name='Test Author')
+        first = Book(title='First Book', author=author)
+        second = Book(title='Second Book', author=author)
+        db.session.add_all([first, second])
+        db.session.commit()
+        first_id, second_id, author_id = first.id, second.id, author.id
+        url = f'/book/{first_id}/delete'
+        self.assertIn(f'action="{url}" method="post"', self.client.get('/').text)
+        self.assertEqual(self.client.get(url).status_code, 405)
+        self.assertIsNotNone(db.session.get(Book, first_id))
+        response = self.client.post(url)
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.headers['Location'], '/')
+        page = self.client.get('/').text
+        self.assertIn('Book "First Book" successfully deleted.'.replace('"', '&#34;'), page)
+        self.assertNotIn('<h2>First Book</h2>', page)
+        self.assertIn('<h2>Second Book</h2>', page)
+        self.assertIsNone(db.session.get(Book, first_id))
+        self.assertEqual(self.client.post(url).status_code, 404)
+        self.client.post(f'/book/{second_id}/delete')
+        self.assertEqual(db.session.query(Book).count(), 0)
+        self.assertIsNotNone(db.session.get(Author, author_id))
 
     def test_title_search(self):
         """Verify phrase matching, sorting, empty queries, and literal wildcards."""

@@ -3,7 +3,7 @@
 from datetime import date
 import os
 
-from flask import Flask, flash, redirect, render_template, request, url_for
+from flask import Flask, abort, flash, redirect, render_template, request, url_for
 from sqlalchemy.exc import SQLAlchemyError
 from data_models import db, Author, Book
 
@@ -88,6 +88,25 @@ def add_book():
         flash(f'Book "{title}" successfully added.')
         return redirect(url_for('add_book'))
     return render_template('add_book.html', authors=authors)
+
+
+@app.route('/book/<int:book_id>/delete', methods=['POST'])
+def delete_book(book_id):
+    """Delete a book while keeping its author and redirect to the library."""
+    book = db.session.get(Book, book_id)
+    if book is None:
+        abort(404)
+    title = book.title
+    try:
+        db.session.delete(book)
+        db.session.commit()
+    except SQLAlchemyError:
+        db.session.rollback()
+        app.logger.exception('Could not delete book')
+        flash('Could not delete the book. Please try again.')
+    else:
+        flash(f'Book "{title}" successfully deleted.')
+    return redirect(url_for('home'))
 
 
 if __name__ == '__main__':
