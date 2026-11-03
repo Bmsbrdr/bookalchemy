@@ -1,49 +1,33 @@
 {% extends 'base.html' %}
 {% block content %}
-<h1>My Library</h1>
-<form action="{{ url_for('home') }}" method="get">
-  <label for="search">Search by title</label>
-  <input type="search" id="search" name="search" value="{{ search }}" placeholder="Enter a word or phrase">
-  <button type="submit">Search</button>
-  {% if search %}
-  <a href="{{ url_for('home', sort=sort) }}">Clear search</a>
-  {% endif %}
-  <label for="sort">Sort by</label>
-  <select id="sort" name="sort">
+<section class="page-heading">
+  <div><p class="eyebrow">YOUR NEXT CHAPTER STARTS HERE</p><h1>My Library<span class="heading-dot">.</span></h1><p class="intro">Old favorites, new discoveries. Every book belongs somewhere.</p></div>
+  <a class="button primary" href="{{ url_for('add_book') }}"><span aria-hidden="true">＋</span> Add Book</a>
+</section>
+<section class="library-banner" aria-label="Library introduction"><div><span class="eyebrow">A COLLECTION THAT'S UNIQUELY YOURS</span><h2>Good books.<br>Great company.</h2><p>Build a shelf that tells your story.</p></div><div class="book-art" aria-hidden="true"><span class="art-book art-one">STORIES</span><span class="art-book art-two">THE<br>READING<br>LIFE</span><span class="art-book art-three">WONDER</span><span class="art-spark">✦</span></div></section>
+<form class="toolbar" action="{{ url_for('home') }}" method="get">
+  <div class="search-group"><label class="visually-hidden" for="search">Search by title</label><input type="search" id="search" name="search" value="{{ search }}" placeholder="Find your next read…"><button type="submit">Search</button></div>
+  <div class="sort-group"><label for="sort">Sort by</label><select id="sort" name="sort">
     {% if sort == 'title' %}
-    <option value="title" selected>Title (A–Z)</option>
-    <option value="author">Author name (A–Z)</option>
+    <option value="title" selected>Title (A–Z)</option><option value="author">Author name (A–Z)</option>
     {% else %}
-    <option value="title">Title (A–Z)</option>
-    <option value="author" selected>Author name (A–Z)</option>
+    <option value="title">Title (A–Z)</option><option value="author" selected>Author name (A–Z)</option>
     {% endif %}
-  </select>
-  <button type="submit">Apply sorting</button>
+  </select><button class="quiet-button" type="submit">Apply sorting</button></div>
 </form>
+<div class="collection-heading"><h2>{% if search %}Search results{% else %}On your shelf{% endif %} <span class="count">{{ books|length }}</span></h2>{% if search %}<a href="{{ url_for('home', sort=sort) }}">Clear search</a>{% else %}<span class="collection-caption">A world worth getting lost in</span>{% endif %}</div>
 <div class="books">
 {% for book in books %}
   <article>
-    <div class="cover">
-      {% if book.isbn %}
-      <img src="https://covers.openlibrary.org/b/isbn/{{ book.isbn|urlencode }}-M.jpg?default=false" alt="Cover of {{ book.title }}" loading="lazy" onerror="this.hidden=true; this.nextElementSibling.hidden=false;">
-      <span hidden>Cover unavailable</span>
-      {% else %}<span>No ISBN – cover unavailable</span>{% endif %}
+    <div class="cover cover-tone-{{ loop.index0 % 4 }}">
+      <div class="cover-fallback"><span class="eyebrow">THE PERSONAL COLLECTION</span><strong>{{ book.title }}</strong><span class="fallback-rule"></span><span>{{ book.author.name }}</span><small>{% if book.isbn %}Cover unavailable{% else %}No ISBN – cover unavailable{% endif %}</small></div>
+      {% if book.isbn %}<img src="https://covers.openlibrary.org/b/isbn/{{ book.isbn|urlencode }}-M.jpg?default=false" alt="Cover of {{ book.title }}" loading="lazy" data-book-cover>{% endif %}
     </div>
-    <h2>{{ book.title }}</h2>
-    <p>{{ book.author.name }}</p>
-    {% if book.publication_year %}<p>Published: {{ book.publication_year }}</p>{% endif %}
-    {% if book.isbn %}<p>ISBN: {{ book.isbn }}</p>{% endif %}
-    <form action="{{ url_for('delete_book', book_id=book.id) }}" method="post">
-      <button type="submit">Delete Book</button>
-    </form>
+    <div class="book-info"><h2>{{ book.title }}</h2><p class="author-name">{{ book.author.name }}</p><div class="book-meta"><span>{% if book.publication_year %}{{ book.publication_year }}{% else %}Year unknown{% endif %}</span><span class="book-format">BOOK</span></div>{% if book.isbn %}<p class="isbn">ISBN {{ book.isbn }}</p>{% endif %}
+    <form class="delete-form" action="{{ url_for('delete_book', book_id=book.id) }}" method="post"><button type="submit" class="delete-button" aria-label="Delete Book: {{ book.title }}">Delete Book <span aria-hidden="true">×</span></button></form></div>
   </article>
 {% else %}
-  {% if search %}
-  <p>No books match your search for “{{ search }}”.</p>
-  {% else %}
-  <p>No books yet. <a href="{{ url_for('add_book') }}">Add your first book.</a></p>
-  {% endif %}
+  <div class="empty-state"><span aria-hidden="true">▤</span>{% if search %}<h2>No matching stories.</h2><p>No books match your search for “{{ search }}”.</p><a class="button primary" href="{{ url_for('home', sort=sort) }}">Show all books</a>{% else %}<h2>Your shelf is a blank page.</h2><p>No books yet. Start a collection that's entirely yours.</p><a class="button primary" href="{{ url_for('add_book') }}">Add your first book.</a>{% endif %}</div>
 {% endfor %}
 </div>
-<p>Cover: <a href="https://openlibrary.org">Open Library</a></p>
 {% endblock %}

@@ -3,32 +3,32 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>{% block title %}My Library{% endblock %}</title>
-  <style>
-    body { font-family: system-ui, sans-serif; max-width: 960px; margin: 2rem auto; padding: 0 1rem; color: #24332b; background: #faf9f5; }
-    nav { display: flex; flex-wrap: wrap; gap: 1rem; margin-bottom: 2rem; }
-    a { color: #286347; }
-    label { display: block; margin-top: 1rem; }
-    input, select, button { font: inherit; padding: .6rem; max-width: 100%; box-sizing: border-box; }
-    input, select { display: block; width: 100%; max-width: 28rem; }
-    button { margin-top: 1rem; cursor: pointer; }
-    .message { padding: 1rem; background: #e2f2df; }
-    .error { padding: 1rem; background: #ffe4df; }
-    .books { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-top: 2rem; }
-    article { padding: 1rem; border: 1px solid #d5ddd3; border-radius: .5rem; background: white; }
-    .cover { height: 200px; display: grid; place-items: center; background: #eef0e8; }
-    .cover img { max-width: 100%; max-height: 200px; }
-    .cover span { padding: 1rem; }
-  </style>
+  <meta name="theme-color" content="#203e35">
+  <title>{% block title %}My Library{% endblock %} · BookAlchemy</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <script src="{{ url_for('static', filename='library.js') }}" defer></script>
 </head>
 <body>
-  <nav aria-label="Main navigation">
-    <a href="{{ url_for('home') }}">Library</a>
-    <a href="{{ url_for('add_author') }}">Add Author</a>
-    <a href="{{ url_for('add_book') }}">Add Book</a>
-  </nav>
-  {% for message in get_flashed_messages() %}<p class="message" role="status">{{ message }}</p>{% endfor %}
-  {% if error %}<p class="error" role="alert">{{ error }}</p>{% endif %}
-  <main>{% block content %}{% endblock %}</main>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <aside class="sidebar">
+    <a class="brand" href="{{ url_for('home') }}"><span class="brand-icon" aria-hidden="true">B.</span>BookAlchemy<span class="brand-caption">A home for your stories</span></a>
+    <p class="nav-label">YOUR READING SPACE</p>
+    <nav aria-label="Main navigation">
+      <a href="{{ url_for('home') }}" aria-current="{{ 'page' if request.endpoint == 'home' else 'false' }}"><span aria-hidden="true">▤</span> My Library</a>
+      <a href="{{ url_for('add_book') }}" aria-current="{{ 'page' if request.endpoint == 'add_book' else 'false' }}"><span aria-hidden="true">＋</span> Add Book</a>
+      <a href="{{ url_for('add_author') }}" aria-current="{{ 'page' if request.endpoint == 'add_author' else 'false' }}"><span aria-hidden="true">✎</span> Add Author</a>
+    </nav>
+    <div class="sidebar-note"><span aria-hidden="true">❧</span><p>One more chapter.<br>One more possibility.</p><small>Make room for a good story.</small></div>
+    <div class="sidebar-footer">YOUR PERSONAL LIBRARY<br><span>Collected with curiosity.</span></div>
+  </aside>
+  <div class="workspace">
+    <header class="topbar"><span>THE PERSONAL COLLECTION</span><span class="topbar-note">A little shelf. A world of stories.</span></header>
+    <main id="main">
+      {% for message in get_flashed_messages() %}<p class="message" role="status">{{ message }}</p>{% endfor %}
+      {% if error %}<p class="error" role="alert">{{ error }}</p>{% endif %}
+      {% block content %}{% endblock %}
+    </main>
+    <footer class="page-footer"><span>BookAlchemy <span aria-hidden="true">✦</span> Keep the stories close.</span><span>Covers courtesy of <a href="https://openlibrary.org">Open Library</a></span></footer>
+  </div>
 </body>
 </html>
